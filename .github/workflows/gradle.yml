@@ -37,3 +37,10 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
+    - name: Build and push image to docker hub
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: sunzhongmou/crawler
+        tags: latest
