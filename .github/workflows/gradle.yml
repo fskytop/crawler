@@ -22,14 +22,14 @@ jobs:
         java-version: 11
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
-    - name: Build with Gradle exclude tests
-      run: ./gradlew build -x test
     - name: Run architecture test
       run: ./gradlew :test --tests "architecture.*"
     - name: Run unit test
       run: ./gradlew :test --tests "top.fsky.crawler.unit.*"
     - name: Run function test
       run: ./gradlew :test --tests "top.fsky.crawler.function.*"
+    - name: Build with Gradle exclude tests
+      run: ./gradlew build -x test
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:

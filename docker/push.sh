@@ -1,17 +1,19 @@
 #!/bin/bash
-set -ex
+set -e
 
-ECR_REPO_URI="577381722483.dkr.ecr.eu-west-1.amazonaws.com/hello-world"
-SERVICE_NAME="java-backend-template"
+get_commit_count() {
+  git rev-list --all --count
+}
 
-echo "> building docker image for service: $SERVICE_NAME"
-docker build -t $SERVICE_NAME -f ./docker/Dockerfile .
+source secrets/docker-hub.env
+echo "> Logging docker hub with user: ${DOCKER_USERNAME}"
 
-echo "> tagging image from $SERVICE_NAME:latest to $ECR_REPO_URI:latest"
-docker tag $SERVICE_NAME:latest $ECR_REPO_URI:latest
+echo "${DOCKER_PASSWORD}" | \
+docker login --username="${DOCKER_USERNAME}" --password-stdin
 
-echo "> login docker and push image to ECR"
-aws ecr get-login --no-include-email --region eu-west-1 | bash
+echo "> Pushing image to docker hub..."
+docker tag nginx-apigw-prod:latest sunzhongmou/oneapi-nginx-gateway:latest
+docker push sunzhongmou/oneapi-nginx-gateway:latest
 
-echo "> pushing image $ECR_REPO_URI:latest"
-docker push $ECR_REPO_URI:latest
+docker tag sunzhongmou/oneapi-nginx-gateway:latest "sunzhongmou/oneapi-nginx-gateway:$(get_commit_count)"
+docker push "sunzhongmou/oneapi-nginx-gateway:$(get_commit_count)"
