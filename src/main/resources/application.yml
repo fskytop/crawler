@@ -14,7 +14,7 @@ spring:
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
-    time-zone: GMT+8
+    time-zone: UTC
   flyway:
     enabled: true # 测试的时候有选择性关闭的需求，如功能测试
     table: schema_version # 版本管理表名
