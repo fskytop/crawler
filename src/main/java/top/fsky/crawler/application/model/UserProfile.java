@@ -12,13 +12,4 @@ public class UserProfile {
     private String username;
     private String name;
     private Instant joinedAt;
-    private Long stationCount;
-
-    public UserProfile(Long id, String username, String name, Instant joinedAt) {
-        this.id = id;
-        this.username = username;
-        this.name = name;
-        this.joinedAt = joinedAt;
-    }
-
 }

@@ -1,5 +1,12 @@
 package top.fsky.crawler.unit;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import top.fsky.crawler.application.exception.ResourceNotFoundException;
 import top.fsky.crawler.application.model.Role;
 import top.fsky.crawler.application.model.RoleName;
@@ -8,12 +15,6 @@ import top.fsky.crawler.application.model.UserProfile;
 import top.fsky.crawler.application.repository.RoleRepository;
 import top.fsky.crawler.application.repository.UserRepository;
 import top.fsky.crawler.application.service.UserBusinessService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class UserBusinessServiceTest {
     @Mock
