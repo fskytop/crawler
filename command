@@ -82,7 +82,7 @@ command_down() {
   docker-compose -f ./local/docker-compose.yml down
 }
 
-# Command Usage: release
+# Command Usage: tag
 # Command Description: Git release with version 
 command_tag() {
   git tag ${PARAMETER} && git push origin ${PARAMETER}
