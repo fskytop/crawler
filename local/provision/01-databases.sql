@@ -1,2 +1,2 @@
 -- create databases
-CREATE DATABASE IF NOT EXISTS `air_test`;
+CREATE DATABASE IF NOT EXISTS `fsky_test`;

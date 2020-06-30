@@ -6,9 +6,9 @@ services:
       - "3307:3306"
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_USER=air
-      - MYSQL_PASSWORD=air
-      - MYSQL_DATABASE=air
+      - MYSQL_USER=fsky
+      - MYSQL_PASSWORD=fsky
+      - MYSQL_DATABASE=fsky
       - MYSQL_ROOT_PASSWORD=passw0rd
     command:
       - --character-set-server=utf8mb4
