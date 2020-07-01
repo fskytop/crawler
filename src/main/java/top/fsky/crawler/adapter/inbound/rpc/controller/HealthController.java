@@ -20,6 +20,7 @@ import java.util.List;
 @Api(value = "health", tags = "health")
 public class HealthController {
     private final JdbcTemplate jdbcTemplate;
+    private static final int NORMAL_ERROR_COUNT = 1;
     
     @Autowired
     public HealthController(JdbcTemplate jdbcTemplate) {
@@ -30,7 +31,7 @@ public class HealthController {
     @ApiOperation("health check")
     public ResponseEntity<?> healthCheck() {
         int errorCode = check();
-        if (1 != errorCode) {
+        if (NORMAL_ERROR_COUNT != errorCode) {
             return new ResponseEntity<>("down", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return ResponseEntity.ok("up");
