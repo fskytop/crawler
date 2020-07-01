@@ -44,3 +44,10 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: sunzhongmou/crawler
         tags: latest
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.CC_HOST }}
+        username: ${{ secrets.CC_USERNAME }}
+        password: ${{ secrets.CC_PASSWORD }}
+        script: cd /root/github/tcloud-cvm-provision/docker/crawler && ./deploy.sh
