@@ -28,7 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
         jsr250Enabled = true,
         prePostEnabled = true
 )
-@Profile(value = {"local", "development", "integration", "production"})
+@Profile(value = {"local", "development", "integration", "dev", "qa", "stg", "prod"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetailsService customUserDetailsService;
