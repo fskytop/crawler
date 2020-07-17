@@ -10,7 +10,7 @@ CREATE TABLE `photos` (
   `updated_by` bigint(20),
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_photos_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE `tags` (

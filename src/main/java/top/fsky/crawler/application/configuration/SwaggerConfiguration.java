@@ -20,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableSwagger2
-@Profile({"local"})
+@Profile({"local", "dev", "qa", "stg", "prod"})
 public class SwaggerConfiguration {
 
     @Bean

@@ -4,7 +4,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import top.fsky.crawler.adapter.inbound.payloads.ApiResponse;
@@ -32,30 +31,29 @@ public class PhotoResource {
 
     @GetMapping
     @ApiOperation("get products")
-    public PagedResponse<PhotoResponse> getProductions(
+    public PagedResponse<PhotoResponse> getPhotos(
             @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
             @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return photoService.getAllProducts(page, size);
+        return photoService.getAllPhotos(page, size);
     }
 
-    @GetMapping("/{productId}")
-    @ApiOperation("get product by id")
-    public PhotoResponse getProductById(@PathVariable Long productId) {
-        return photoService.getProductById(productId);
+    @GetMapping("/{photoId}")
+    @ApiOperation("get photo by id")
+    public PhotoResponse getPhotoById(@PathVariable Long photoId) {
+        return photoService.getPhotoById(photoId);
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
     @ApiOperation("create product")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody PhotoRequest productRequest) {
-        Photo product = photoService.createProduct(productRequest);
+    public ResponseEntity<?> createPhoto(@Valid @RequestBody PhotoRequest productRequest) {
+        Photo photo = photoService.createPhoto(productRequest);
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{productId}")
-                .buildAndExpand(product.getId()).toUri();
+                .fromCurrentRequest().path("/{photoId}")
+                .buildAndExpand(photo.getId()).toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "Product Created Successfully"));
+                .body(new ApiResponse(true, "Photo Created Successfully"));
     }
     
 }

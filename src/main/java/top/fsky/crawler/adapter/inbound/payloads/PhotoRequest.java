@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +15,19 @@ import javax.validation.constraints.Size;
 @Builder(toBuilder = true)
 public class PhotoRequest {
     @NotBlank
-    @Size(max = 60)
+    @Size(max = 120)
     private String name;
+
+    @NotBlank
+    @Size(max = 100)
+    private String path;
+
+    @NotBlank
+    @Size(max = 60)
+    private String host;
+
+    @Size(max = 280)
+    private String url;
+    
+    private Set<String> tags;
 }

@@ -10,57 +10,94 @@ import org.springframework.stereotype.Service;
 import top.fsky.crawler.adapter.inbound.payloads.PagedResponse;
 import top.fsky.crawler.adapter.inbound.payloads.PhotoRequest;
 import top.fsky.crawler.adapter.inbound.payloads.PhotoResponse;
+import top.fsky.crawler.application.exception.AppException;
 import top.fsky.crawler.application.exception.BadRequestException;
 import top.fsky.crawler.application.exception.ResourceNotFoundException;
-import top.fsky.crawler.application.model.Photo;
+import top.fsky.crawler.application.model.*;
 import top.fsky.crawler.application.repository.PhotoRepository;
+import top.fsky.crawler.application.repository.TagRepository;
 import top.fsky.crawler.application.utils.AppConstants;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class PhotoService {
 
     private final PhotoRepository photoRepository;
+    private final TagRepository tagRepository;
 
     @Autowired
-    public PhotoService(PhotoRepository photoRepository) {
+    public PhotoService(PhotoRepository photoRepository, TagRepository tagRepository) {
         this.photoRepository = photoRepository;
+        this.tagRepository = tagRepository;
     }
 
-    public PagedResponse<PhotoResponse> getAllProducts(int page, int size) {
+    public PagedResponse<PhotoResponse> getAllPhotos(int page, int size) {
         validatePageNumberAndSize(page, size);
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "id");
-        Page<Photo> products = photoRepository.findAll(pageable);
+        Page<Photo> photos = photoRepository.findAll(pageable);
 
-        List<PhotoResponse> productResponses = products.map(
-                product -> new PhotoResponse(product.getId(), product.getName())
+        List<PhotoResponse> photoResponses = photos.map(
+                photo -> new PhotoResponse(
+                        photo.getId(),
+                        photo.getName(),
+                        photo.getPath(),
+                        photo.getHost(),
+                        photo.getUrl(),
+                        photo.getTags())
         ).getContent();
         
-        return new PagedResponse<>(productResponses, products.getNumber(),
-                products.getSize(), products.getTotalElements(),
-                products.getTotalPages(), products.isLast()
+        return new PagedResponse<>(photoResponses, photos.getNumber(),
+                photos.getSize(), photos.getTotalElements(),
+                photos.getTotalPages(), photos.isLast()
         );
     }
 
-    public Photo createProduct(PhotoRequest productRequest) {
-        Photo product = new Photo();
-        product.setName(productRequest.getName());
+    public Photo createPhoto(PhotoRequest photoRequest) {
+        Set<Tag> tags = null;
+        if (photoRequest.getTags() != null){
+            tags = photoRequest.getTags().stream()
+                    .map(tagStr -> {
+                        TagName tagName = TagName.valueOf(tagStr);
+                        return tagRepository.findByName(tagName)
+                                .orElseThrow(() -> new AppException("Tag not found."));
+                    })
+                    .collect(Collectors.toSet());
+        }
+        if (tags == null){
+            Tag tag = tagRepository.findByName(TagName.TAG_UNKNOWN)
+                    .orElseThrow(() -> new AppException("User Role not set."));
 
-        return photoRepository.save(product);
+            tags = Collections.singleton(tag);
+        }
+        
+        Photo photo = Photo.builder()
+                .name(photoRequest.getName())
+                .host(photoRequest.getHost())
+                .path(photoRequest.getPath())
+                .url(photoRequest.getUrl())
+                .tags(tags)
+                .build();
+
+        return photoRepository.save(photo);
     }
 
-    public PhotoResponse getProductById(Long productId) {
-        Photo product = photoRepository.findById(productId).orElseThrow(
-                () -> new ResourceNotFoundException("Product", "id", productId));
+    public PhotoResponse getPhotoById(Long photoId) {
+        Photo photo = photoRepository.findById(photoId).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "id", photoId));
 
-        PhotoResponse productResponse = new PhotoResponse();
-        productResponse.setId(product.getId());
-        productResponse.setName(product.getName());
-
-        return productResponse;
+        return new PhotoResponse(
+                photo.getId(),
+                photo.getName(),
+                photo.getPath(),
+                photo.getHost(),
+                photo.getUrl(),
+                photo.getTags());
     }
 
     private void validatePageNumberAndSize(int page, int size) {
