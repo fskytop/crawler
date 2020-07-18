@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import top.fsky.crawler.adapter.inbound.payloads.ApiResponse;
-import top.fsky.crawler.adapter.inbound.payloads.PagedResponse;
-import top.fsky.crawler.adapter.inbound.payloads.PhotoRequest;
-import top.fsky.crawler.adapter.inbound.payloads.PhotoResponse;
+import top.fsky.crawler.adapter.inbound.payloads.*;
+import top.fsky.crawler.application.model.Detail;
 import top.fsky.crawler.application.model.Photo;
 import top.fsky.crawler.application.service.PhotoService;
 import top.fsky.crawler.application.utils.AppConstants;
@@ -45,8 +43,8 @@ public class PhotoResource {
 
     @PostMapping
     @ApiOperation("create product")
-    public ResponseEntity<?> createPhoto(@Valid @RequestBody PhotoRequest productRequest) {
-        Photo photo = photoService.createPhoto(productRequest);
+    public ResponseEntity<?> createPhoto(@Valid @RequestBody PhotoRequest photoRequest) {
+        Photo photo = photoService.createPhoto(photoRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{photoId}")
@@ -54,6 +52,19 @@ public class PhotoResource {
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "Photo Created Successfully"));
+    }
+
+    @PostMapping("/{photoId}/details")
+    @ApiOperation("create details")
+    public ResponseEntity<?> createPhotoDetails(@Valid @RequestBody PhotoDetailRequest photoDetailRequest, @PathVariable Long photoId) {
+        Detail detail = photoService.createPhotoDetail(photoId, photoDetailRequest);
+        
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{photoId}/details/{detailId}")
+                .buildAndExpand(photoId, detail.getId()).toUri();
+
+        return ResponseEntity.created(location)
+                .body(new ApiResponse(true, "Photo Detail Created Successfully"));
     }
     
 }

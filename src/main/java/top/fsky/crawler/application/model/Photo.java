@@ -1,6 +1,8 @@
 package top.fsky.crawler.application.model;
 
 import lombok.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import top.fsky.crawler.application.model.audit.UserDateAudit;
 
 import javax.persistence.*;
@@ -26,6 +28,7 @@ public class Photo extends UserDateAudit {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @NotBlank
@@ -49,4 +52,9 @@ public class Photo extends UserDateAudit {
             joinColumns = @JoinColumn(name = "photo_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JoinColumn(name = "detail_id", referencedColumnName = "id")
+    private Detail detail;
 }

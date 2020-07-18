@@ -8,12 +8,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import top.fsky.crawler.adapter.inbound.payloads.PagedResponse;
+import top.fsky.crawler.adapter.inbound.payloads.PhotoDetailRequest;
 import top.fsky.crawler.adapter.inbound.payloads.PhotoRequest;
 import top.fsky.crawler.adapter.inbound.payloads.PhotoResponse;
 import top.fsky.crawler.application.exception.AppException;
 import top.fsky.crawler.application.exception.BadRequestException;
 import top.fsky.crawler.application.exception.ResourceNotFoundException;
-import top.fsky.crawler.application.model.*;
+import top.fsky.crawler.application.model.Detail;
+import top.fsky.crawler.application.model.Photo;
+import top.fsky.crawler.application.model.Tag;
+import top.fsky.crawler.application.model.TagName;
+import top.fsky.crawler.application.repository.DetailRepository;
 import top.fsky.crawler.application.repository.PhotoRepository;
 import top.fsky.crawler.application.repository.TagRepository;
 import top.fsky.crawler.application.utils.AppConstants;
@@ -29,11 +34,15 @@ public class PhotoService {
 
     private final PhotoRepository photoRepository;
     private final TagRepository tagRepository;
+    private final DetailRepository detailRepository;
 
     @Autowired
-    public PhotoService(PhotoRepository photoRepository, TagRepository tagRepository) {
+    public PhotoService(PhotoRepository photoRepository, 
+                        TagRepository tagRepository,
+                        DetailRepository detailRepository) {
         this.photoRepository = photoRepository;
         this.tagRepository = tagRepository;
+        this.detailRepository = detailRepository;
     }
 
     public PagedResponse<PhotoResponse> getAllPhotos(int page, int size) {
@@ -49,7 +58,9 @@ public class PhotoService {
                         photo.getPath(),
                         photo.getHost(),
                         photo.getUrl(),
-                        photo.getTags())
+                        photo.getTags(),
+                        photo.getDetail()
+                )
         ).getContent();
         
         return new PagedResponse<>(photoResponses, photos.getNumber(),
@@ -97,7 +108,8 @@ public class PhotoService {
                 photo.getPath(),
                 photo.getHost(),
                 photo.getUrl(),
-                photo.getTags());
+                photo.getTags(),
+                photo.getDetail());
     }
 
     private void validatePageNumberAndSize(int page, int size) {
@@ -110,4 +122,25 @@ public class PhotoService {
         }
     }
 
+    public Detail createPhotoDetail(Long photoId, PhotoDetailRequest photoDetailRequest) {
+        Photo photo = photoRepository.findById(photoId).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "id", photoId));
+
+        Detail detail = photo.getDetail();
+        
+        if (detail != null){
+            detail.setTitle(photoDetailRequest.getTitle());
+            detail.setDescription(photoDetailRequest.getDescription());
+        } else {
+            detail = Detail.builder()
+                    .title(photoDetailRequest.getTitle())
+                    .description(photoDetailRequest.getDescription())
+                    .build();
+        }
+        detail = detailRepository.save(detail);
+        photo.setDetail(detail);
+        photoRepository.save(photo);
+        
+        return detail;
+    }
 }
