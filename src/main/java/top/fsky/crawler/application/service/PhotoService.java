@@ -128,14 +128,14 @@ public class PhotoService {
 
         Detail detail = photo.getDetail();
         
-        if (detail != null){
-            detail.setTitle(photoDetailRequest.getTitle());
-            detail.setDescription(photoDetailRequest.getDescription());
-        } else {
+        if (detail == null){
             detail = Detail.builder()
                     .title(photoDetailRequest.getTitle())
                     .description(photoDetailRequest.getDescription())
                     .build();
+        } else {
+            detail.setTitle(photoDetailRequest.getTitle());
+            detail.setDescription(photoDetailRequest.getDescription());
         }
         detail = detailRepository.save(detail);
         photo.setDetail(detail);
