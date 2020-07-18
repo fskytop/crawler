@@ -1,7 +1,7 @@
 package top.fsky.crawler.adapter.inbound.rpc.controller;
 
-import top.fsky.crawler.adapter.inbound.payloads.ApiResponse;
-import top.fsky.crawler.adapter.inbound.payloads.JwtAuthenticationResponse;
+import top.fsky.crawler.application.model.payloads.ApiResponse;
+import top.fsky.crawler.application.model.payloads.JwtAuthenticationResponse;
 import top.fsky.crawler.adapter.inbound.rpc.payloads.SignInRequest;
 import top.fsky.crawler.adapter.inbound.rpc.payloads.SignUpRequest;
 import top.fsky.crawler.application.model.User;

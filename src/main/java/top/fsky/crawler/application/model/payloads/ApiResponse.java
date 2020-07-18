@@ -1,4 +1,4 @@
-package top.fsky.crawler.adapter.inbound.payloads;
+package top.fsky.crawler.application.model.payloads;
 
 import lombok.Data;
 

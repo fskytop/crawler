@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import top.fsky.crawler.adapter.inbound.payloads.*;
 import top.fsky.crawler.application.model.Detail;
 import top.fsky.crawler.application.model.Photo;
+import top.fsky.crawler.application.model.payloads.*;
 import top.fsky.crawler.application.service.PhotoService;
 import top.fsky.crawler.application.utils.AppConstants;
 
