@@ -66,5 +66,17 @@ public class PhotoResource {
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "Photo Detail Created Successfully"));
     }
-    
+
+    @PostMapping("/{photoId}/tags")
+    @ApiOperation("create tags")
+    public ResponseEntity<?> createPhotoTags(@Valid @RequestBody PhotoTagRequest photoDetailRequest, @PathVariable Long photoId) {
+        Photo photo = photoService.createPhotoTag(photoId, photoDetailRequest);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{photoId}/tags/{detailId}")
+                .buildAndExpand(photoId, photo.getId()).toUri();
+
+        return ResponseEntity.created(location)
+                .body(new ApiResponse(true, "Photo Tag Created Successfully"));
+    }
 }

@@ -7,10 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import top.fsky.crawler.application.model.payloads.PagedResponse;
-import top.fsky.crawler.application.model.payloads.PhotoDetailRequest;
-import top.fsky.crawler.application.model.payloads.PhotoRequest;
-import top.fsky.crawler.application.model.payloads.PhotoResponse;
 import top.fsky.crawler.application.exception.AppException;
 import top.fsky.crawler.application.exception.BadRequestException;
 import top.fsky.crawler.application.exception.ResourceNotFoundException;
@@ -18,6 +14,7 @@ import top.fsky.crawler.application.model.Detail;
 import top.fsky.crawler.application.model.Photo;
 import top.fsky.crawler.application.model.Tag;
 import top.fsky.crawler.application.model.TagName;
+import top.fsky.crawler.application.model.payloads.*;
 import top.fsky.crawler.application.repository.DetailRepository;
 import top.fsky.crawler.application.repository.PhotoRepository;
 import top.fsky.crawler.application.repository.TagRepository;
@@ -142,5 +139,20 @@ public class PhotoService {
         photoRepository.save(photo);
         
         return detail;
+    }
+
+    public Photo createPhotoTag(Long photoId, PhotoTagRequest photoTagRequest) {
+        Photo photo = photoRepository.findById(photoId).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "id", photoId));
+
+        Set<Tag> tags = photoTagRequest.getTags().stream()
+                .map(tagStr -> {
+                    TagName tagName = TagName.valueOf(tagStr);
+                    return tagRepository.findByName(tagName)
+                            .orElseThrow(() -> new AppException("Tag not found."));
+                })
+                .collect(Collectors.toSet());
+        photo.setTags(tags);
+        return photoRepository.save(photo);
     }
 }
