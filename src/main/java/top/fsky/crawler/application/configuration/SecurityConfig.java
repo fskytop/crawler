@@ -92,7 +92,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/",
                         "/api/auth/**",
                         "/api/users/**",
-                        "/api/photos/**"
+                        "/api/photos/**",
+                        "/api/search/**"
                 )
                     .permitAll()
                 .anyRequest()
