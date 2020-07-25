@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class PhotoSpecification implements Specification<Photo> {
 
+    private static final long serialVersionUID = -8414199284410896908L;
     private final SpecSearchCriteria criteria;
 
     public PhotoSpecification(SpecSearchCriteria criteria) {
@@ -25,7 +26,7 @@ public class PhotoSpecification implements Specification<Photo> {
         case EQUALITY: 
             {
                 String key = criteria.getKey();
-                if (key.equals("tags")){
+                if ("tags".equals(key)){
                     String[] tags = ((String) criteria.getValue()).split(",");
                     List<TagName> tagNames = new ArrayList<>();
                     for (String tag: tags) {

@@ -16,25 +16,35 @@ public class GenericSpecificationsBuilder<U> {
         this.params = new ArrayList<>();
     }
 
-    public final GenericSpecificationsBuilder<U> with(final String key, final String operation, final Object value, final String prefix, final String suffix) {
+    public final GenericSpecificationsBuilder<U> with(
+            final String key, final String operation, final Object value, final String prefix, final String suffix) {
         return with(null, key, operation, value, prefix, suffix);
     }
+    
+    private SearchOperation getOperation(final String prefix, final String suffix){
+        SearchOperation op = null;
+        
+        final boolean startWithAsterisk = prefix != null && prefix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
+        final boolean endWithAsterisk = suffix != null && suffix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
 
-    public final GenericSpecificationsBuilder<U> with(final String precedenceIndicator, final String key, final String operation, final Object value, final String prefix, final String suffix) {
+        if (startWithAsterisk && endWithAsterisk) {
+            op = SearchOperation.CONTAINS;
+        } else if (startWithAsterisk) {
+            op = SearchOperation.ENDS_WITH;
+        } else if (endWithAsterisk) {
+            op = SearchOperation.STARTS_WITH;
+        }
+        
+        return op;
+    }
+
+    public final GenericSpecificationsBuilder<U> with(
+            final String precedenceIndicator, final String key, final String operation, 
+            final Object value, final String prefix, final String suffix) { 
         SearchOperation op = SearchOperation.getSimpleOperation(operation.charAt(0));
         if (op != null) {
-            if (op == SearchOperation.EQUALITY) // the operation may be complex operation
-            {
-                final boolean startWithAsterisk = prefix != null && prefix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
-                final boolean endWithAsterisk = suffix != null && suffix.contains(SearchOperation.ZERO_OR_MORE_REGEX);
-
-                if (startWithAsterisk && endWithAsterisk) {
-                    op = SearchOperation.CONTAINS;
-                } else if (startWithAsterisk) {
-                    op = SearchOperation.ENDS_WITH;
-                } else if (endWithAsterisk) {
-                    op = SearchOperation.STARTS_WITH;
-                }
+            if (op == SearchOperation.EQUALITY) {
+                op = this.getOperation(prefix, suffix);
             }
             params.add(new SpecSearchCriteria(precedenceIndicator, key, op, value));
         }
@@ -43,7 +53,7 @@ public class GenericSpecificationsBuilder<U> {
 
     public Specification<U> build(Function<SpecSearchCriteria, Specification<U>> converter) {
 
-        if (params.size() == 0) {
+        if (params.isEmpty()) {
             return null;
         }
 
@@ -74,17 +84,16 @@ public class GenericSpecificationsBuilder<U> {
         while (!postFixedExprStack.isEmpty()) {
             Object mayBeOperand = postFixedExprStack.pop();
 
-            if (!(mayBeOperand instanceof String)) {
-                specStack.push(converter.apply((SpecSearchCriteria) mayBeOperand));
-            } else {
+            if (mayBeOperand instanceof String) {
                 Specification<U> operand1 = specStack.pop();
                 Specification<U> operand2 = specStack.pop();
-                if (mayBeOperand.equals(SearchOperation.AND_OPERATOR))
-                    specStack.push(Specification.where(operand1)
-                        .and(operand2));
-                else if (mayBeOperand.equals(SearchOperation.OR_OPERATOR))
-                    specStack.push(Specification.where(operand1)
-                        .or(operand2));
+                if (mayBeOperand.equals(SearchOperation.AND_OPERATOR)) {
+                    specStack.push(Specification.where(operand1).and(operand2));
+                } else if (mayBeOperand.equals(SearchOperation.OR_OPERATOR)) {
+                    specStack.push(Specification.where(operand1).or(operand2));
+                }
+            } else {
+                specStack.push(converter.apply((SpecSearchCriteria) mayBeOperand));
             }
 
         }

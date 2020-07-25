@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,7 @@ public class CriteriaParser {
 
     private static Map<String, Operator> ops;
 
-    private static Pattern SpecCriteriaRegex = Pattern.compile("^(\\w+?)(" + Joiner.on("|")
+    private static Pattern specCriteriaRegex = Pattern.compile("^(\\w+?)(" + Joiner.on("|")
         .join(SearchOperation.SIMPLE_OPERATION_SET) + ")(\\p{Punct}?)(\\w+?)(\\p{Punct}?)$");
 
     private enum Operator {
@@ -25,7 +26,7 @@ public class CriteriaParser {
     }
 
     static {
-        Map<String, Operator> tempMap = new HashMap<>();
+        Map<String, Operator> tempMap = new ConcurrentHashMap<>();
         tempMap.put("AND", Operator.AND);
         tempMap.put("OR", Operator.OR);
         tempMap.put("or", Operator.OR);
@@ -35,7 +36,7 @@ public class CriteriaParser {
     }
 
     private static boolean isHigherPrecedenceOperator(String currOp, String prevOp) {
-        return (ops.containsKey(prevOp) && ops.get(prevOp).precedence >= ops.get(currOp).precedence);
+        return ops.containsKey(prevOp) && ops.get(prevOp).precedence >= ops.get(currOp).precedence;
     }
 
     public Deque<?> parse(String searchParam) {
@@ -46,20 +47,20 @@ public class CriteriaParser {
         Arrays.stream(searchParam.split("\\s+")).forEach(token -> {
             
             if (ops.containsKey(token)) {
-                while (!stack.isEmpty() && isHigherPrecedenceOperator(token, stack.peek()))
+                while (!stack.isEmpty() && isHigherPrecedenceOperator(token, stack.peek())) { 
                     output.push(stack.pop()
                             .equalsIgnoreCase(SearchOperation.OR_OPERATOR) ? SearchOperation.OR_OPERATOR : SearchOperation.AND_OPERATOR);
+                }
                 stack.push(token.equalsIgnoreCase(SearchOperation.OR_OPERATOR) ? SearchOperation.OR_OPERATOR : SearchOperation.AND_OPERATOR);
             } else if (token.equals(SearchOperation.LEFT_PARANTHESIS)) {
                 stack.push(SearchOperation.LEFT_PARANTHESIS);
             } else if (token.equals(SearchOperation.RIGHT_PARANTHESIS)) {
-                while (!stack.peek()
-                        .equals(SearchOperation.LEFT_PARANTHESIS))
+                while (!stack.peek().equals(SearchOperation.LEFT_PARANTHESIS)) {
                     output.push(stack.pop());
+                }
                 stack.pop();
             } else {
-
-                Matcher matcher = SpecCriteriaRegex.matcher(token);
+                Matcher matcher = specCriteriaRegex.matcher(token);
                 while (matcher.find()) {
                     output.push(new SpecSearchCriteria(matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4), matcher.group(5)));
                 }
@@ -67,8 +68,9 @@ public class CriteriaParser {
 
         });
 
-        while (!stack.isEmpty())
+        while (!stack.isEmpty()) {
             output.push(stack.pop());
+        }
 
         log.info("======");
         log.info(output.toString());
