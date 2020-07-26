@@ -1,4 +1,4 @@
-package top.fsky.crawler.adapter.inbound.spec;
+package top.fsky.crawler.application.spec;
 
 public enum SearchOperation {
     EQUALITY, NEGATION, GREATER_THAN, LESS_THAN, LIKE, STARTS_WITH, ENDS_WITH, CONTAINS;

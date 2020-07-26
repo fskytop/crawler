@@ -6,7 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import top.fsky.crawler.application.spec.CriteriaParser;
+import top.fsky.crawler.application.spec.GenericSpecificationsBuilder;
+import top.fsky.crawler.application.spec.PhotoSpecification;
 import top.fsky.crawler.application.exception.AppException;
 import top.fsky.crawler.application.exception.BadRequestException;
 import top.fsky.crawler.application.exception.ResourceNotFoundException;
@@ -48,22 +52,7 @@ public class PhotoService {
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "id");
         Page<Photo> photos = photoRepository.findAll(pageable);
 
-        List<PhotoResponse> photoResponses = photos.map(
-                photo -> new PhotoResponse(
-                        photo.getId(),
-                        photo.getName(),
-                        photo.getPath(),
-                        photo.getHost(),
-                        photo.getUrl(),
-                        photo.getTags(),
-                        photo.getDetail()
-                )
-        ).getContent();
-        
-        return new PagedResponse<>(photoResponses, photos.getNumber(),
-                photos.getSize(), photos.getTotalElements(),
-                photos.getTotalPages(), photos.isLast()
-        );
+        return this.getPagedResponse(photos);
     }
 
     public Photo createPhoto(PhotoRequest photoRequest) {
@@ -154,5 +143,41 @@ public class PhotoService {
                 .collect(Collectors.toSet());
         photo.setTags(tags);
         return photoRepository.save(photo);
+    }
+
+    public PagedResponse<PhotoResponse> search(String searchParameters, int page, int size) {
+
+        validatePageNumberAndSize(page, size);
+        Specification<Photo> spec = resolveSpecificationFromInfixExpr(searchParameters);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "id");
+        Page<Photo> photos = photoRepository.findAll(spec, pageable);
+
+        return this.getPagedResponse(photos);
+    }
+
+    protected PagedResponse<PhotoResponse> getPagedResponse(Page<Photo> photos){
+        List<PhotoResponse> photoResponses = photos.map(
+                photo -> new PhotoResponse(
+                        photo.getId(),
+                        photo.getName(),
+                        photo.getPath(),
+                        photo.getHost(),
+                        photo.getUrl(),
+                        photo.getTags(),
+                        photo.getDetail()
+                )
+        ).getContent();
+
+        return new PagedResponse<>(photoResponses, photos.getNumber(),
+                photos.getSize(), photos.getTotalElements(),
+                photos.getTotalPages(), photos.isLast()
+        );
+    }
+
+    protected Specification<Photo> resolveSpecificationFromInfixExpr(String searchParameters) {
+        CriteriaParser parser = new CriteriaParser();
+        GenericSpecificationsBuilder<Photo> specBuilder = new GenericSpecificationsBuilder<>();
+        return specBuilder.build(parser.parse(searchParameters), PhotoSpecification::new);
     }
 }

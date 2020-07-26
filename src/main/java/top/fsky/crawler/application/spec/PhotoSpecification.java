@@ -1,11 +1,14 @@
-package top.fsky.crawler.adapter.inbound.spec;
+package top.fsky.crawler.application.spec;
 
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 import top.fsky.crawler.application.model.Photo;
 import top.fsky.crawler.application.model.TagName;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +51,18 @@ public class PhotoSpecification implements Specification<Photo> {
             return builder.like(root.get(criteria.getKey()), criteria.getValue() + "%");
         case ENDS_WITH:
             return builder.like(root.get(criteria.getKey()), "%" + criteria.getValue());
-        case CONTAINS:
-            return builder.like(root.get(criteria.getKey()), "%" + criteria.getValue() + "%");
+        case CONTAINS: 
+            {
+                String key = criteria.getKey();
+                if ("detail".equals(key)){
+                    return builder.like(
+                            builder.concat(
+                                    root.join("detail").get("title"), 
+                                    root.join("detail").get("description")), 
+                            "%" + criteria.getValue() + "%");
+                }
+                return builder.like(root.get(criteria.getKey()), "%" + criteria.getValue() + "%"); 
+            }
         default:
             return null;
         }

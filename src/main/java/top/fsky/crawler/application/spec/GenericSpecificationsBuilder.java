@@ -1,4 +1,4 @@
-package top.fsky.crawler.adapter.inbound.spec;
+package top.fsky.crawler.application.spec;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
