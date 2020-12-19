@@ -1,6 +1,7 @@
 package top.fsky.crawler.application.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import top.fsky.crawler.application.model.Point;
 
@@ -10,4 +11,7 @@ import java.util.Optional;
 public interface PointRepository extends JpaRepository<Point, Long> {
     @Override
     Optional<Point> findById(Long testKitId);
+    
+    @Query(value = "select sum(point) from Point")
+    Long sumPoint();
 }

@@ -10,6 +10,7 @@
     <rule ref="category/java/errorprone.xml">
         <exclude name="BeanMembersShouldSerialize"/>
         <exclude name="DataflowAnomalyAnalysis"/>
+        <exclude name="AvoidFieldNameMatchingTypeName"/>
     </rule>
     <rule ref="category/java/bestpractices.xml"/>
     <rule ref="category/java/multithreading.xml"/>

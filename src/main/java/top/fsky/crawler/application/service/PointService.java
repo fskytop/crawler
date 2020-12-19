@@ -57,6 +57,10 @@ public class PointService {
         );
     }
     
+    public Long sumPoints(){
+        return pointRepository.sumPoint();
+    }
+    
     public Point createPoint(PointRequest pointRequest) {
         Point point = new Point();
         point.setPoint(pointRequest.getPoint());

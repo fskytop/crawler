@@ -42,6 +42,12 @@ public class PointController {
     public PointResponse getPointById(@PathVariable Long pointId) {
         return pointService.getPointById(pointId);
     }
+
+    @GetMapping("/sum")
+    @ApiOperation("get sum of points")
+    public ApiResponse getSumPoints() {
+        return new ApiResponse(true, pointService.sumPoints().toString());
+    }
     
     @PostMapping
     @ApiOperation("create point")
