@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class PointRequest {
     @NotNull
     @Max(1000)
-    @Min(1)
+    @Min(-999)
     private Integer point;
     
     @NotNull

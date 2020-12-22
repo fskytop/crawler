@@ -13,4 +13,5 @@ public class PointResponse {
     private Long id;
     private int point;
     private String description;
+    private Long createdAt;
 }

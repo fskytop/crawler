@@ -20,6 +20,7 @@ import top.fsky.crawler.application.repository.PointRepository;
 import top.fsky.crawler.application.repository.SubjectRepository;
 import top.fsky.crawler.application.utils.AppConstants;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -45,10 +46,7 @@ public class PointService {
         Page<Point> points = pointRepository.findAll(pageable);
 
         List<PointResponse> pointResponses = points.map(
-                point -> new PointResponse(
-                        point.getId(), 
-                        point.getPoint(), 
-                        point.getDescription())
+                point -> this.mappingPointToResponse(point)
         ).getContent();
         
         return new PagedResponse<>(pointResponses, points.getNumber(),
@@ -97,6 +95,7 @@ public class PointService {
         pointResponse.setId(point.getId());
         pointResponse.setPoint(point.getPoint());
         pointResponse.setDescription(point.getDescription());
+        pointResponse.setCreatedAt(getEpochMilli(point.getCreatedAt()));
         
         return pointResponse;
     }
@@ -109,5 +108,9 @@ public class PointService {
         if (size < 0 || size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException(AppConstants.PAGE_NUMBER_GREATER_MSG + AppConstants.MAX_PAGE_SIZE);
         }
+    }
+
+    private Long getEpochMilli(Instant instant){
+        return null != instant ? instant.toEpochMilli() : 0;
     }
 }
