@@ -111,6 +111,6 @@ public class PointService {
     }
 
     private Long getEpochMilli(Instant instant){
-        return null != instant ? instant.toEpochMilli() : 0;
+        return null == instant ? 0 : instant.toEpochMilli();
     }
 }
